@@ -1,5 +1,6 @@
 const axios = require("axios");
-const Redis = require("ioredis");
+const express = require("express");
+const {connection, redisGetToken} = require("../middlewares/redis.middleware");
 const { createConfig } = require("../helpers/utils");
 const { google } = require("googleapis");
 const nodemailer = require("nodemailer");
@@ -7,17 +8,76 @@ const constants = require("../constants");
 require("dotenv").config();
 const OpenAI = require("openai");
 const { Queue } = require("bullmq");
+const googleRouter = express.Router();
+const { OAuth2Client } = require("google-auth-library");
+// const { redisGetToken } = require("../middlewares")
 
-const connection = new Redis(
-  {
-    port: process.env.redis_port,
-    host: process.env,redis_host,
-    password: process.env.redis_pass,
-  },
-  {
-    maxRetriesPerRequest: null,
+
+const oAuth2Client = new OAuth2Client({
+  clientId: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  redirectUri: process.env.GOOGLE_REDIRECT_URI,
+});
+
+
+const scopes = [
+  "https://www.googleapis.com/auth/gmail.readonly",
+  "https://www.googleapis.com/auth/gmail.compose",
+  "https://www.googleapis.com/auth/gmail.modify",
+  // "https://www.googleapis.com/auth/gmail.metadata",
+];
+
+googleRouter.get("/auth/google", (req, res) => {
+  const authUrl = oAuth2Client.generateAuthUrl({
+    access_type: "offline",
+    scope: scopes,
+  });
+  res.redirect(authUrl);
+});
+
+let accessToken;
+googleRouter.get("/auth/google/callback", async (req, res) => {
+  const { code } = req.query;
+  console.log(code);
+  if (!code) {
+    return res.status(400).send("Authorization code missing.");
   }
-);
+
+  try {
+    const { tokens } = await oAuth2Client.getToken(code);
+
+    const { access_token, refresh_token, scope } = tokens;
+    console.log(tokens);
+    accessToken = access_token; // Assign the access token to the accessToken variable
+
+    // connection.setex(email, 3600, accessToken);
+    console.log(accessToken);
+    if (scope.includes(scopes.join(" "))) {
+        
+      res.send("Restricted scopes test passed.");
+    
+    } else {
+      res.send("Restricted scopes test failed: Scopes are not restricted.");
+    }
+  } catch (error) {
+    console.error("Error exchanging authorization code:", error.message);
+    res.status(500).send("Error exchanging authorization code.");
+  }
+});
+
+
+
+
+// const connection = new Redis(
+//   {
+//     port: process.env.redis_port,
+//     host: process.env.redis_host,
+//     password: process.env.redis_pass,
+//   },
+//   {
+//     maxRetriesPerRequest: null,
+//   }
+// );
 
 const sendMailQueue = new Queue("email-queue", { connection });
 
@@ -35,22 +95,23 @@ async function init(body) {
   console.log("Job added to queue", res.id);
 }
 
-const oAuth2Client = new google.auth.OAuth2({
-  clientId: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  redirectUri: process.env.GOOGLE_REDIRECT_URI,
-});
 oAuth2Client.setCredentials({
   refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
 });
+
+
+
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_SECRECT_KEY });
 
 const getUser = async (req, res) => {
   try {
     const url = `https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/profile`;
-    const  token  =process.env.token;
-    console.log(token)
+    console.log(accessToken)
+    const token = accessToken;
+    connection.setex(req.params.email, 3600, token);
+    // const  token  =process.env.token;
+    console.log(`hiiii ${token} this is token`)
     if (!token) {
       return res.send("Token not found , Please login again to get token");
     }
@@ -70,7 +131,10 @@ const getDrafts = async (req, res) => {
   try {
     const url = `https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/drafts`;
     // const { token } = await oAuth2Client.getAccessToken();
-    const  token  =process.env.token;
+    // const  token  =process.env.token;
+    const token = await redisGetToken(req.params.email);
+    console.log(token);
+    // const token = accessToken;
     console.log(token)
     if (!token) {
       return res.send("Token not found , Please login again to get token");
@@ -90,7 +154,10 @@ const readMail = async (req, res) => {
   try {
     const url = `https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/messages/${req.params.message}`;
     // const { token } = await oAuth2Client.getAccessToken();
-    const  token  =process.env.token;
+    // const  token  =process.env.token;
+    // const token = accessToken;
+    const token = await redisGetToken(req.params.email);
+    console.log(token)
     if (!token) {
       return res.send("Token not found , Please login again to get token");
     }
@@ -100,7 +167,9 @@ const readMail = async (req, res) => {
     res.json(data);
   } catch (error) {
     res.send(error.message)
+    console.log(error)
     console.log("Can't read mail ", error.message);
+    
   }
 };
 
@@ -108,7 +177,9 @@ const getMails = async (req, res) => {
   try {
     const url = `https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/messages?maxResults=50`;
     // const { token } = await oAuth2Client.getAccessToken();
-    const  token  =process.env.token;
+    // const  token  =process.env.token;
+    // const token = accessToken;
+    const token = await redisGetToken(req.params.email);
     if (!token) {
       return res.send("Token not found , Please login again to get token");
     }
@@ -125,24 +196,28 @@ const sendMail = async (data) => {
   try {
     console.log("data : ", data);
     // const { token } = await oAuth2Client.getAccessToken();
-    const token =process.env.token;
+    // const token =process.env.token;
+    // const token = accessToken;
+    const token = "ya29.a0Ad52N39MgRqIxY2MOH9xryrixPy3Z7_gCv9KCeZYwqCX2cB0r__paWOwJGN5G6p7tgscwis1c-gjBhlGrGPOnRFFNLJky2wox3Th1hX2SiVPWGSSyOT_2bS4u16BouOCclzlKrxjTZ4FvD9y3gt10jgttanZvN7wK279aCgYKAfwSARESFQHGX2Mimz3EZwIkxq1vuKEdIfyWyw0171";
     if (!token) {
       throw new Error("Token not found , Please login again to get token");
     }
+    
     const transport = nodemailer.createTransport({
-      service: "gmail",
+      host:'smtp.gmail.com',
+      port:587,
       auth: {
-        ...constants.auth,
-        accessToken: token,
-      },
+        user: "shraddha.gawde1999@gmail.com",
+        pass: "jmed ynzj eyfn jwbe",
+    },
       tls: {
         rejectUnauthorized: false,
       },
     });
 
     const mailOptions = {
-      from: "shraddha gawde 📩 <shraddha.gawde1999@gmail.com>",
-      to: "piu.gawde1999@gmail.com",
+      from: "shraddha.gawde1999@gmail.com",
+      to: "piu.gawde051999@gmail.com",
       subject: "Hello from gmail API using NodeJS",
       text: "Hello from gmail email using API",
       html: "<h1>Hello from gmail email using API</h1>",
@@ -214,6 +289,7 @@ const sendMail = async (data) => {
     }
   } catch (error) {
     console.log("Can't send email ", error.message);
+    
   }
 };
 
@@ -329,4 +405,5 @@ module.exports = {
   parseAndSendMail,
   sendMailViaQueue,
   sendMultipleEmails,
+  googleRouter
 };

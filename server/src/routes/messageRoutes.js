@@ -7,7 +7,7 @@ router.use(express.urlencoded({ extended: true }));
 
 // MessageRoutes googleapis
 router.get('/user/:email', getUser);
-router.get('/send', sendMail);
+router.post('/send', sendMail);
 router.get('/drafts/:email', getDrafts);
 router.get('/read/:email/message/:message', readMail);
 router.get('/list/:email', getMails);
@@ -19,3 +19,4 @@ router.post('/sendmulti/:id', sendMultipleEmails);
 // MessageRoutes outlook (if any)
 
 module.exports = router;
+ 

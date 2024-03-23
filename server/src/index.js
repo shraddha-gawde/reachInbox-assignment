@@ -5,12 +5,15 @@ const bodyParser = require('body-parser');
 const app = express();
 require('dotenv').config();
 const router = require("./routes/messageRoutes");
+const {googleRouter} = require("./controllers/msgController")
 // const { outlookRouter } = require('./routes/outlookRoutes');
 const { getMails } = require('./controllers/msgController');
 
 app.use(bodyParser.json());
 app.use(cors());
+
 app.use(express.urlencoded({ extended: true }));
+
 app.use(session({
   secret: "any_secret_key",
   resave: false,
@@ -18,12 +21,13 @@ app.use(session({
 }));
 
 // MessageRoutes
+app.use("/", googleRouter)
 app.use('/api/mail', router);
 // app.use('/', outlookRouter);
 
-app.get('/', async (req, res) => {
-    return res.json({ message: 'Hello World' });
-});
+// app.get('/', async (req, res) => {
+//     return res.json({ message: 'Hello World' });
+// });
 
 app.listen(process.env.PORT, () => {
     console.log(`Server is running on port http://localhost:${process.env.PORT}`);

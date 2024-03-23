@@ -1,19 +1,21 @@
 const { Worker } = require('bullmq');
-const Redis = require("ioredis");
+const { connection, redisGetToken } = require("./middlewares/redis.middleware");
 const { google } = require('googleapis');
 const nodemailer = require('nodemailer');
 const constants = require('./constants');
 require('dotenv').config();
 const { default: OpenAI } = require('openai');
-
-const connection = new Redis(
-  {
-    port: process.env.redis_port,
-    host: process.env,redis_host,
-    password: process.env.redis_pass,
-  }, {
-  maxRetriesPerRequest: null
-});
+const axios = require("axios")
+// const {connection, redisGetToken} = require("./middlewares/redis.middleware");
+const { createConfig } = require("./helpers/utils");
+// const connection = new Redis(
+//   {
+//     port: process.env.redis_port,
+//     host: process.env.redis_host,
+//     password: process.env.redis_pass,
+//   }, {
+//   maxRetriesPerRequest: null
+// });
 
 const oAuth2Client = new google.auth.OAuth2({
   clientId: process.env.GOOGLE_CLIENT_ID,
@@ -27,17 +29,20 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_SECRECT_KEY });
 let hardCodedReply = true;
 const sendMail = async (data) => {
   try {
-    const { token } = await oAuth2Client.getAccessToken();
+    const token = await redisGetToken(data.to);
+    // const { token } = await oAuth2Client.getAccessToken();
+    console.log(token)
     if (!token) { throw new Error("Token not found, Please login again to get token"); }
     const transport = nodemailer.createTransport({
-      service: 'gmail',
+      host:'smtp.gmail.com',
+      port:587,
       auth: {
-        ...constants.auth,
-        accessToken: token
-      },
+        user: "shraddha.gawde1999@gmail.com",
+        pass: "jmed ynzj eyfn jwbe",
+    },
       tls: {
-        rejectUnauthorized: false
-      }
+        rejectUnauthorized: false,
+      },
     });
 
     const mailOptions = {
@@ -86,12 +91,20 @@ const sendMail = async (data) => {
 const parseAndSendMail = async (data1) => {
   try {
     const { from, to } = data1;
-    const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
-    const message = await gmail.users.messages.get({
-      userId: 'me',
-      id: data1.id,
-      format: 'full'
-    });
+    // const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
+    
+    // const message = axios.get(`https://gmail.googleapis.com/gmail/v1/users/${to}/messages/${data1.id}`)
+    const token = await redisGetToken(to)
+    const url1 = `https://gmail.googleapis.com/gmail/v1/users/${to}/messages/${data1.id}`;
+    const config = createConfig(url1, token);
+    const message = await axios(config);
+    
+    // const message = await gmail.users.messages.get({
+    //   userId: 'me',
+    //   id: data1.id,
+    //   format: 'full'
+    // });
+
 
     const payload = message.data.payload;
     const headers = payload.headers;
@@ -120,8 +133,9 @@ const parseAndSendMail = async (data1) => {
     });
 
     const prediction = response.choices[0]?.message.content;
+    console.log(prediction)
     let label;
-    if (prediction.includes("uninterested")) {
+    if (prediction.includes("Not Interested")) {
       label = 'Not Interested';
     }
     else if (prediction.includes("info")) {
@@ -137,6 +151,7 @@ const parseAndSendMail = async (data1) => {
     return dataFromMail;
   } catch (error) {
     console.log("Can't fetch email ", error.message);
+    // console.log(error)
     return -1;
   }
 };
