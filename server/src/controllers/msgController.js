@@ -1,6 +1,9 @@
 const axios = require("axios");
 const express = require("express");
-const {connection, redisGetToken} = require("../middlewares/redis.middleware");
+const {
+  connection,
+  redisGetToken,
+} = require("../middlewares/redis.middleware");
 const { createConfig } = require("../helpers/utils");
 const { google } = require("googleapis");
 const nodemailer = require("nodemailer");
@@ -11,14 +14,11 @@ const { Queue } = require("bullmq");
 const googleRouter = express.Router();
 const { OAuth2Client } = require("google-auth-library");
 
-
-
 const oAuth2Client = new OAuth2Client({
   clientId: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   redirectUri: process.env.GOOGLE_REDIRECT_URI,
 });
-
 
 const scopes = [
   "https://www.googleapis.com/auth/gmail.readonly",
@@ -26,7 +26,6 @@ const scopes = [
   "https://www.googleapis.com/auth/gmail.modify",
   // "https://www.googleapis.com/auth/gmail.metadata",
 ];
-
 
 googleRouter.get("/auth/google", (req, res) => {
   const authUrl = oAuth2Client.generateAuthUrl({
@@ -49,14 +48,12 @@ googleRouter.get("/auth/google/callback", async (req, res) => {
 
     const { access_token, refresh_token, scope } = tokens;
     console.log(tokens);
-    accessToken = access_token; // Assign the access token to the accessToken variable
+    accessToken = access_token;
 
     // connection.setex(email, 3600, accessToken);
     console.log(accessToken);
     if (scope.includes(scopes.join(" "))) {
-        
       res.send("Restricted scopes test passed.");
-    
     } else {
       res.send("Restricted scopes test failed: Scopes are not restricted.");
     }
@@ -67,18 +64,6 @@ googleRouter.get("/auth/google/callback", async (req, res) => {
 });
 
 
-
-
-// const connection = new Redis(
-//   {
-//     port: process.env.redis_port,
-//     host: process.env.redis_host,
-//     password: process.env.redis_pass,
-//   },
-//   {
-//     maxRetriesPerRequest: null,
-//   }
-// );
 
 const sendMailQueue = new Queue("email-queue", { connection });
 
@@ -100,19 +85,16 @@ oAuth2Client.setCredentials({
   refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
 });
 
-
-
-
 const openai = new OpenAI({ apiKey: process.env.OPENAI_SECRECT_KEY });
 
 const getUser = async (req, res) => {
   try {
     const url = `https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/profile`;
-    console.log(accessToken)
+    console.log(accessToken);
     const token = accessToken;
     connection.setex(req.params.email, 3600, token);
     // const  token  =process.env.token;
-    console.log(`hiiii ${token} this is token`)
+    console.log(`hiiii ${token} this is token`);
     if (!token) {
       return res.send("Token not found , Please login again to get token");
     }
@@ -124,7 +106,7 @@ const getUser = async (req, res) => {
   } catch (error) {
     console.log("Can't get user email data ", error.message);
     res.send(error.message);
-    console.log(error)
+    // console.log(error);
   }
 };
 
@@ -136,17 +118,17 @@ const getDrafts = async (req, res) => {
     const token = await redisGetToken(req.params.email);
     console.log(token);
     // const token = accessToken;
-    console.log(token)
+    console.log(token);
     if (!token) {
       return res.send("Token not found , Please login again to get token");
     }
     const config = createConfig(url, token);
-    console.log(config)
+    console.log(config);
     const response = await axios(config);
-    console.log(response)
+    console.log(response);
     res.json(response.data);
   } catch (error) {
-    res.send(error.message)
+    res.send(error.message);
     console.log("Can't get drafts ", error.message);
   }
 };
@@ -158,7 +140,7 @@ const readMail = async (req, res) => {
     // const  token  =process.env.token;
     // const token = accessToken;
     const token = await redisGetToken(req.params.email);
-    console.log(token)
+    console.log(token);
     if (!token) {
       return res.send("Token not found , Please login again to get token");
     }
@@ -167,10 +149,9 @@ const readMail = async (req, res) => {
     let data = await response.data;
     res.json(data);
   } catch (error) {
-    res.send(error.message)
-    console.log(error)
+    res.send(error.message);
+    // console.log(error);
     console.log("Can't read mail ", error.message);
-    
   }
 };
 
@@ -188,112 +169,81 @@ const getMails = async (req, res) => {
     const response = await axios(config);
     res.json(response.data);
   } catch (error) {
-    res.send(error.message)
+    res.send(error.message);
     console.log("Can't get emails ", error.message);
   }
 };
 
+
 const sendMail = async (data) => {
   try {
-    console.log("data : ", data);
-    // const { token } = await oAuth2Client.getAccessToken();
-    // const token =process.env.token;
-    // const token = accessToken;
-    const token = "ya29.a0Ad52N39MgRqIxY2MOH9xryrixPy3Z7_gCv9KCeZYwqCX2cB0r__paWOwJGN5G6p7tgscwis1c-gjBhlGrGPOnRFFNLJky2wox3Th1hX2SiVPWGSSyOT_2bS4u16BouOCclzlKrxjTZ4FvD9y3gt10jgttanZvN7wK279aCgYKAfwSARESFQHGX2Mimz3EZwIkxq1vuKEdIfyWyw0171";
-    if (!token) {
-      throw new Error("Token not found , Please login again to get token");
+
+    const Token = accessToken; 
+    if (!Token) {
+      throw new Error("Token not found, please login again to get token");
     }
-    
-    const transport = nodemailer.createTransport({
-      host:'smtp.gmail.com',
-      port:587,
+
+    // Create a Nodemailer transporter
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
       auth: {
-        user: "shraddha.gawde1999@gmail.com",
-        pass: "jmed ynzj eyfn jwbe",
-    },
+        user: 'shraddha.gawde1999@gmail.com', 
+        pass: "jmed ynzj eyfn jwbe", 
+      },
       tls: {
         rejectUnauthorized: false,
       },
     });
 
     const mailOptions = {
-      from: "shraddha.gawde1999@gmail.com",
-      to: "piu.gawde051999@gmail.com",
-      subject: "Hello from gmail API using NodeJS",
-      text: "Hello from gmail email using API",
-      html: "<h1>Hello from gmail email using API</h1>",
+      from: data.from,
+      to: data.to,
+      subject: "",
+      text: "",
+      html: "",
     };
-    mailOptions.from = data.from;
-    mailOptions.to = data.to;
 
+    // Define the email content based on the label
+    let emailContent = '';
     if (data.label === "Interested") {
-      const response = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo-0301",
-        max_tokens: 60,
-        temperature: 0.5,
-        messages: [
-          {
-            role: "user",
-            content: `If the email mentions they are interested to know more, your reply should ask them if they are willing to hop on to a demo call by suggesting a time.
-                    write a small text on above request in around 50 -70 words`,
-          },
-        ],
-      });
-      console.log(response.choices[0]);
+      emailContent = `If the email mentions they are interested to know more, your reply should ask them if they are willing to hop on to a demo call by suggesting a time from your end.
+                      write a small text on above request in around 50 -70 words`;
       mailOptions.subject = `User is : ${data.label}`;
-      mailOptions.text = `${response.choices[0].message.content}`;
-      mailOptions.html = `<p>${response.choices[0].message.content}</p>
-                                <img src="" alt="reachinbox">`;
-      const result = await transport.sendMail(mailOptions);
-      return result;
     } else if (data.label === "Not Interested") {
-      const response = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo-0301",
-        max_tokens: 60,
-        temperature: 0.5,
-        messages: [
-          {
-            role: "user",
-            content: `If the email mentions they are not interested, your reply should ask them for feedback on why they are not interested.
-                    write a small text on above request in around 50 -70 words`,
-          },
-        ],
-      });
-      console.log(response.choices[0]);
+      emailContent = `If the email mentions they are not interested, your reply should ask them for feedback on why they are not interested.
+                      write a small text on above request in around 50 -70 words`;
       mailOptions.subject = `User is : ${data.label}`;
-      mailOptions.text = `${response.choices[0].message.content}`;
-      mailOptions.html = `<p>${response.choices[0].message.content}</p>
-            <img src="" alt="reachinbox">`;
-      const result = await transport.sendMail(mailOptions);
-      return result;
     } else if (data.label === "More information") {
-      const response = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo-0301",
-        max_tokens: 60,
-        temperature: 0.5,
-        messages: [
-          {
-            role: "user",
-            content: `If the email mentions they are interested to know more, your reply should ask them if they can
-                    give some more information whether they are interested or not as it's not clear from their previous mail.
-                    write a small text on above request in around 70-80 words`,
-          },
-        ],
-      });
-      console.log(response.choices[0]);
+      emailContent = `If the email mentions they are interested to know more, your reply should ask them if they can give some more information whether they are interested or not as it's not clear from their previous mail.
+                      write a small text on above request in around 70-80 words`;
       mailOptions.subject = `User wants : ${data.label}`;
-      mailOptions.text = `${response.choices[0].message.content}`;
-      mailOptions.html = `<p>${response.choices[0].message.content}</p>
-                <img src="" alt="reachinbox">`;
-      const result = await transport.sendMail(mailOptions);
-      return result;
     }
+
+    // Generate response using OpenAI's API
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo-0301",
+      max_tokens: 60,
+      temperature: 0.5,
+      messages: [
+        {
+          role: "user",
+          content: emailContent,
+        },
+      ],
+    });
+
+    // Set mail content based on the response from OpenAI
+    mailOptions.text = `${response.choices[0].message.content}`;
+    mailOptions.html = `<p>${response.choices[0].message.content}</p>`;
+
+    // Send email
+    const result = await transporter.sendMail(mailOptions);
+    return result;
   } catch (error) {
-    console.log("Can't send email ", error.message);
-    
+    throw new Error("Can't send email: " + error.message);
   }
 };
-
 const parseAndSendMail = async (data1) => {
   try {
     console.log("body is :", data1);
@@ -389,13 +339,32 @@ const sendMultipleEmails = async (req, res) => {
   try {
     const { id } = req.params;
     const { from, to } = req.body;
-    for (let i = 0; i < to.length; i++) {
-      await init({ from, to: to[i], id });
+    
+    if (Array.isArray(to)) {
+      for (let i = 0; i < to.length; i++) {
+        await sendEmailToQueue({ from, to: to[i], id });
+      }
+    } else {
+      await sendEmailToQueue({ from, to, id });
     }
+    
+    res.send("Mail processing has been queued.");
   } catch (error) {
     console.log("Error in sending multiple emails", error.message);
+    res.status(500).send("Error in sending multiple emails");
   }
 };
+const sendEmailToQueue = async ({ from, to, id }) => {
+  try {
+    // Enqueue a job to send the email
+    await sendMailQueue.add('send-email', { from, to, id });
+    console.log(`Email to ${to} has been queued.`);
+  } catch (error) {
+    console.error('Error enqueuing email job:', error.message);
+    throw error;
+  }
+};
+
 
 module.exports = {
   getUser,
@@ -406,5 +375,5 @@ module.exports = {
   parseAndSendMail,
   sendMailViaQueue,
   sendMultipleEmails,
-  googleRouter
+  googleRouter,
 };

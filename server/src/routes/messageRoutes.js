@@ -5,9 +5,17 @@ const { getUser, sendMail, getDrafts, readMail, getMails, parseAndSendMail, send
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
 
-// MessageRoutes googleapis
 router.get('/user/:email', getUser);
-router.post('/send', sendMail);
+
+router.post('/send', async (req, res) => {
+    try {
+      const result = await sendMail(req.body);
+      res.status(200).json({ message: "Email sent successfully", result });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
 router.get('/drafts/:email', getDrafts);
 router.get('/read/:email/message/:message', readMail);
 router.get('/list/:email', getMails);
