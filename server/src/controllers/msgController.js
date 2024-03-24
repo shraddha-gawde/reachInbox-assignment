@@ -24,7 +24,7 @@ const scopes = [
   "https://www.googleapis.com/auth/gmail.readonly",
   "https://www.googleapis.com/auth/gmail.compose",
   "https://www.googleapis.com/auth/gmail.modify",
-  // "https://www.googleapis.com/auth/gmail.metadata",
+  
 ];
 
 googleRouter.get("/auth/google", (req, res) => {
@@ -49,8 +49,6 @@ googleRouter.get("/auth/google/callback", async (req, res) => {
     const { access_token, refresh_token, scope } = tokens;
     console.log(tokens);
     accessToken = access_token;
-
-    // connection.setex(email, 3600, accessToken);
     console.log(accessToken);
     if (scope.includes(scopes.join(" "))) {
       res.send("Restricted scopes test passed.");
@@ -62,8 +60,6 @@ googleRouter.get("/auth/google/callback", async (req, res) => {
     res.status(500).send("Error exchanging authorization code.");
   }
 });
-
-
 
 const sendMailQueue = new Queue("email-queue", { connection });
 
@@ -90,34 +86,38 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_SECRECT_KEY });
 const getUser = async (req, res) => {
   try {
     const url = `https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/profile`;
+
     console.log(accessToken);
     const token = accessToken;
     connection.setex(req.params.email, 3600, token);
     // const  token  =process.env.token;
     console.log(`hiiii ${token} this is token`);
+
     if (!token) {
       return res.send("Token not found , Please login again to get token");
     }
+
     const config = createConfig(url, token);
     console.log(config);
+
     const response = await axios(config);
     console.log(response);
+
     res.json(response.data);
   } catch (error) {
     console.log("Can't get user email data ", error.message);
     res.send(error.message);
-    // console.log(error);
+
   }
 };
 
 const getDrafts = async (req, res) => {
   try {
     const url = `https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/drafts`;
-    // const { token } = await oAuth2Client.getAccessToken();
-    // const  token  =process.env.token;
+  
     const token = await redisGetToken(req.params.email);
     console.log(token);
-    // const token = accessToken;
+  
     console.log(token);
     if (!token) {
       return res.send("Token not found , Please login again to get token");
@@ -136,9 +136,7 @@ const getDrafts = async (req, res) => {
 const readMail = async (req, res) => {
   try {
     const url = `https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/messages/${req.params.message}`;
-    // const { token } = await oAuth2Client.getAccessToken();
-    // const  token  =process.env.token;
-    // const token = accessToken;
+   
     const token = await redisGetToken(req.params.email);
     console.log(token);
     if (!token) {
@@ -150,7 +148,7 @@ const readMail = async (req, res) => {
     res.json(data);
   } catch (error) {
     res.send(error.message);
-    // console.log(error);
+    
     console.log("Can't read mail ", error.message);
   }
 };
@@ -158,9 +156,7 @@ const readMail = async (req, res) => {
 const getMails = async (req, res) => {
   try {
     const url = `https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/messages?maxResults=50`;
-    // const { token } = await oAuth2Client.getAccessToken();
-    // const  token  =process.env.token;
-    // const token = accessToken;
+ 
     const token = await redisGetToken(req.params.email);
     if (!token) {
       return res.send("Token not found , Please login again to get token");
@@ -174,22 +170,20 @@ const getMails = async (req, res) => {
   }
 };
 
-
 const sendMail = async (data) => {
   try {
-
-    const Token = accessToken; 
+    const Token = accessToken;
     if (!Token) {
       throw new Error("Token not found, please login again to get token");
     }
 
     // Create a Nodemailer transporter
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
+    const transport = nodemailer.createTransport({
+      host: process.env.SMTP_host,
+      port: process.env.SMTP_port,
       auth: {
-        user: 'shraddha.gawde1999@gmail.com', 
-        pass: "jmed ynzj eyfn jwbe", 
+        user: process.env.SMTP_mail,
+        pass: process.env.SMTP_pass,
       },
       tls: {
         rejectUnauthorized: false,
@@ -205,7 +199,7 @@ const sendMail = async (data) => {
     };
 
     // Define the email content based on the label
-    let emailContent = '';
+    let emailContent = "";
     if (data.label === "Interested") {
       emailContent = `If the email mentions they are interested to know more, your reply should ask them if they are willing to hop on to a demo call by suggesting a time from your end.
                       write a small text on above request in around 50 -70 words`;
@@ -339,7 +333,7 @@ const sendMultipleEmails = async (req, res) => {
   try {
     const { id } = req.params;
     const { from, to } = req.body;
-    
+
     if (Array.isArray(to)) {
       for (let i = 0; i < to.length; i++) {
         await sendEmailToQueue({ from, to: to[i], id });
@@ -347,7 +341,7 @@ const sendMultipleEmails = async (req, res) => {
     } else {
       await sendEmailToQueue({ from, to, id });
     }
-    
+
     res.send("Mail processing has been queued.");
   } catch (error) {
     console.log("Error in sending multiple emails", error.message);
@@ -357,14 +351,13 @@ const sendMultipleEmails = async (req, res) => {
 const sendEmailToQueue = async ({ from, to, id }) => {
   try {
     // Enqueue a job to send the email
-    await sendMailQueue.add('send-email', { from, to, id });
+    await sendMailQueue.add("send-email", { from, to, id });
     console.log(`Email to ${to} has been queued.`);
   } catch (error) {
-    console.error('Error enqueuing email job:', error.message);
+    console.error("Error enqueuing email job:", error.message);
     throw error;
   }
 };
-
 
 module.exports = {
   getUser,
