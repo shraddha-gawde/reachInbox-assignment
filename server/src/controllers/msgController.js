@@ -178,7 +178,7 @@ const sendMail = async (data) => {
     }
 
     // Create a Nodemailer transporter
-    const transport = nodemailer.createTransport({
+    const transporter = nodemailer.createTransport({
       host: process.env.SMTP_host,
       port: process.env.SMTP_port,
       auth: {

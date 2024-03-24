@@ -136,11 +136,9 @@
 // };
 
 const express = require("express");
-const session = require("express-session");
-const cors = require("cors");
 const app = express();
 const { Client } = require("@microsoft/microsoft-graph-client");
-
+require("dotenv").config()
 
 const {
   PublicClientApplication,
@@ -149,13 +147,10 @@ const {
 
 const outlookRouter = express.Router();
 
-
-
-const clientId = "be8ccf6d-93c8-480d-b2bb-88e46c2318de";
-const clientSecret = "ZJV8Q~budnjrppuw8i.O0wG8xxioe1ZuMpOdkbLD";
-const tenantId = "44f4d6b1-8db8-495e-bb3c-e62b42a19dd2";
-const redirectUri = "http://localhost:4400/get"; //or any redirect uri you set on the azure AD
-
+const clientId = process.env.AZURE_CLIENT_ID; 
+const clientSecret = process.env.AZURE_CLIENT_SECRET; 
+const tenantId = process.env.AZURE_TENANT_ID; 
+const redirectUri = "http://localhost:4400/callback";
 const scopes = ["https://graph.microsoft.com/.default"];
 
 const msalConfig = {
@@ -178,6 +173,7 @@ const ccaConfig = {
 
 const cca = new ConfidentialClientApplication(ccaConfig);
 
+// Route for initiating sign-in flow
 outlookRouter.get("/signin", (req, res) => {
   const authCodeUrlParameters = {
     scopes,
@@ -189,47 +185,50 @@ outlookRouter.get("/signin", (req, res) => {
   });
 });
 
-outlookRouter.get("/", (req, res) => {
-  const tokenRequest = {
-    code: req.query.code,
-    scopes,
-    redirectUri,
-    clientSecret: clientSecret,
-  };
+// Callback route for handling authorization code
+outlookRouter.get("/callback", async (req, res) => {
+  const { code } = req.query;
 
-  pca
-    .acquireTokenByCode(tokenRequest)
-    .then((response) => {
-      // Store the user-specific access token in the session for future use
-      req.session.accessToken = response.accessToken;
+  if (!code) {
+    return res.status(400).send("Authorization code missing.");
+  }
+  // console.log(code)
 
-      // Redirect the user to a profile page or any other secure route
-      // This time, we are redirecting to the get-access-token route to generate a client token
-      res.redirect("/get-access-token");
-    })
-    .catch((error) => {
-      console.log(error);
-      res.status(500).send(error);
-    });
+  try {
+    const tokenRequest = {
+      clientId,
+      code,
+      scopes,
+      redirectUri,
+      clientSecret:clientSecret,
+    };
+    console.log("Token Request:", tokenRequest);
+    const response = await pca.acquireTokenByCode(tokenRequest);
+    req.session.accessToken = response.accessToken;
+console.log(response.accessToken)
+    res.redirect("/get-access-token");
+  } catch (error) {
+    console.error("Error exchanging authorization code:", error.message);
+    console.log(error)
+    res.status(500).send("Error exchanging authorization code.");
+  }
 });
 
+// Route for acquiring client access token
 outlookRouter.get("/get-access-token", async (req, res) => {
   try {
     const tokenRequest = {
       scopes,
-      clientSecret: clientSecret,
+      clientSecret,
     };
 
     const response = await cca.acquireTokenByClientCredential(tokenRequest);
-    const accessToken = response.accessToken;
-console.log(accessToken)
-    // Store the client-specific access token in the session for future use
-    req.session.clientAccessToken = accessToken; // This will now be stored in the session
-
+    req.session.clientAccessToken = response.accessToken;
+    console.log(response)
     res.send("Access token acquired successfully!");
   } catch (error) {
-    res.status(500).send(error);
-    console.log("Error acquiring access token:", error.message);
+    console.error("Error acquiring client access token:", error.message);
+    res.status(500).send("Error acquiring client access token.");
   }
 });
 
