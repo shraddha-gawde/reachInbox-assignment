@@ -10,7 +10,7 @@ const OpenAI = require("openai");
 const { Queue } = require("bullmq");
 const googleRouter = express.Router();
 const { OAuth2Client } = require("google-auth-library");
-// const { redisGetToken } = require("../middlewares")
+
 
 
 const oAuth2Client = new OAuth2Client({
@@ -26,6 +26,7 @@ const scopes = [
   "https://www.googleapis.com/auth/gmail.modify",
   // "https://www.googleapis.com/auth/gmail.metadata",
 ];
+
 
 googleRouter.get("/auth/google", (req, res) => {
   const authUrl = oAuth2Client.generateAuthUrl({
