@@ -18,6 +18,10 @@ Backend : [Link](https://reachinbox-assignment-4rf9.onrender.com)
 - Axios
 - bullMQ
 
+<br>
+API documentation build with postman documentation - [Link](https://documenter.getpostman.com/view/31971527/2sA35D43FE) 
+<br>
+
 ## API Endpoints
 
 For Google's OAuth2.0:
