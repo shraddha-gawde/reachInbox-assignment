@@ -3,14 +3,14 @@ document.addEventListener('DOMContentLoaded', function() {
   
     signinButton1.addEventListener('click', function() {
       
-      window.location.href = 'http://localhost:4400/auth/google';
+      window.location.href = 'https://reachinbox-assignment-4rf9.onrender.com/auth/google';
     });
 
     const signinButton2 = document.getElementById('signin-btn-ms');
   
     signinButton2.addEventListener('click', function() {
       
-      window.location.href = 'http://localhost:4400/signin';
+      window.location.href = 'https://reachinbox-assignment-4rf9.onrender.com/signin';
     });
   });
   
