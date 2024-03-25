@@ -151,7 +151,7 @@ const clientSecret = process.env.AZURE_CLIENT_SECRET;
 const tenantId = process.env.AZURE_TENANT_ID;
 const redirectUri = "http://localhost:4400/callback";
 const scopes = ["https://graph.microsoft.com/.default"];
-
+let aceesToken;
 const msalConfig = {
   auth: {
     clientId:"be8ccf6d-93c8-480d-b2bb-88e46c2318de",
@@ -182,7 +182,7 @@ outlookRouter.get("/signin", (req, res) => {
     redirectUri,
   };
 
-  pca.getAuthCodeUrl(authCodeUrlParameters).then((response) => {
+  cca.getAuthCodeUrl(authCodeUrlParameters).then((response) => {
     res.redirect(response);
   });
 });
@@ -205,9 +205,10 @@ outlookRouter.get("/callback", async (req, res) => {
       clientSecret: clientSecret,
     };
     console.log("Token Request:", tokenRequest);
-    const response = await pca.acquireTokenByCode(tokenRequest);
+    const response = await cca.acquireTokenByCode(tokenRequest);
     req.session.accessToken = response.accessToken;
-    console.log(response.accessToken);
+    accessToken = response.accessToken;
+    console.log(accessToken);
     res.redirect("/get-access-token");
   } catch (error) {
     console.error("Error exchanging authorization code:", error.message);
@@ -217,6 +218,7 @@ outlookRouter.get("/callback", async (req, res) => {
 });
 
 // Route for acquiring client access token
+let clientAccessToken;
 outlookRouter.get("/get-access-token", async (req, res) => {
   try {
     const tokenRequest = {
@@ -226,7 +228,8 @@ outlookRouter.get("/get-access-token", async (req, res) => {
 
     const response = await cca.acquireTokenByClientCredential(tokenRequest);
     req.session.clientAccessToken = response.accessToken;
-    console.log(response);
+    clientAccessToken = response.accessToken;
+    console.log(clientAccessToken);
     res.send("Access token acquired successfully!");
   } catch (error) {
     console.error("Error acquiring client access token:", error.message);
@@ -238,17 +241,17 @@ outlookRouter.use("/get-mails/:num", async (req, res) => {
   const num = req.params.num;
 
   try {
-    const userAccessToken = req.session.accessToken;
-    const clientAccessToken = req.session.clientAccessToken;
+    const userAccessToken = accessToken;
+    const clientAccess = clientAccessToken;
     console.log(userAccessToken)
-    console.log(clientAccessToken)
+    console.log(clientAccess)
     if (!userAccessToken) {
       return res
         .status(401)
         .send("User not authenticated. Please sign in first.");
     }
 
-    if (!clientAccessToken) {
+    if (!clientAccess) {
       return res
         .status(401)
         .send(
@@ -256,7 +259,7 @@ outlookRouter.use("/get-mails/:num", async (req, res) => {
         );
     }
 
-    const client = Client.init({
+    const client = Client.clientAccessToken({
       authProvider: (done) => {
         done(null, userAccessToken);
       },

@@ -2,7 +2,6 @@ const { Worker } = require("bullmq");
 const { connection, redisGetToken } = require("./middlewares/redis.middleware");
 const { google } = require("googleapis");
 const nodemailer = require("nodemailer");
-const constants = require("./constants");
 require("dotenv").config();
 const { default: OpenAI } = require("openai");
 const axios = require("axios");
@@ -73,8 +72,8 @@ const sendMail = async (data) => {
           <p>${hardCodedReply ? `Thank you for your email expressing interest in knowing more about our product/service. However, it is not clear from your previous mail whether you are interested or not. Could you please provide us with some more information? This will help us understand your requirements better and provide you with relevant information.` : `${response.choices[0].message.content}`}</p>
           
         </div>`;
-    } 
-    
+    }
+
     else if (data.label === "Not Interested") {
       mailOptions.subject = `User is : ${data.label}`;
       mailOptions.html = `
@@ -82,8 +81,8 @@ const sendMail = async (data) => {
           <p>${hardCodedReply ? `Thank you for considering our offering. We respect your decision. Could you kindly share feedback on why our product/service did not align with your needs? Your insights are invaluable as we strive to improve our offerings. Looking forward to hearing from you.` : `${response.choices[0].message.content}`}</p>
           
         </div>`;
-    } 
-    
+    }
+
     else if (data.label === "More information") {
       mailOptions.subject = `User wants : ${data.label}`;
       mailOptions.html = `
@@ -167,26 +166,22 @@ const parseAndSendMail = async (data1) => {
     return dataFromMail;
   } catch (error) {
     console.log("Can't fetch email ", error.message);
-    // console.log(error)
     return -1;
   }
 };
 
 const sendEmail = (data, jobID) =>
   new Promise(async (req, res) => {
-    let helo = await parseAndSendMail(data);
-    if (helo) {
+    let msg = await parseAndSendMail(data);
+    if (msg) {
       console.log(`Job ${jobID} completed and sent to ${data.to}`);
     }
-
-    return helo;
+    return msg;
   })
     .then((res) => console.log(res))
     .catch((err) => console.log(err));
 
-const mailWorker = new Worker(
-  "email-queue",
-  async (job) => {
+const mailWorker = new Worker("email-queue", async (job) => {
     const { from, to, id, jobId } = job.data;
 
     console.log(`Job ${job.id} has started`);
