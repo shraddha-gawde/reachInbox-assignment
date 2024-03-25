@@ -103,7 +103,6 @@ const sendMail = async (data) => {
 const parseAndSendMail = async (data1) => {
   try {
     const { from, to } = data1;
-
     const token = await redisGetToken(to);
     const url1 = `https://gmail.googleapis.com/gmail/v1/users/${to}/messages/${data1.id}`;
     const config = createConfig(url1, token);

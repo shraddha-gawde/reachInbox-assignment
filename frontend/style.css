@@ -1,32 +1,74 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  h1 {
-    margin-top: 20px;
-    margin-bottom: 10px;
-  }
-  
-  button {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    border: none;
-    border-radius: 5px;
-    background-color: #007bff;
-    color: #fff;
-    transition: background-color 0.3s;
-  }
-  
-  button:hover {
-    background-color: #0056b3;
-  }
-  
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins',sans-serif;
+}
+html, body{
+  display: grid;
+  height: 80vh;
+  width: 100%;
+  place-items: center;
+  background: linear-gradient(to right, #B0C5A4 0%, #67C6E3 100%);
+}
+h1{
+    color: #385594;
+    font-size: 3rem;
+}
+.container{
+  background: #fff;
+  max-height: 500px;
+  height: 500px;
+  max-width: 500px;
+  width: 100%;
+  padding: 25px 30px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.15);
+}
+
+.container .option{
+  font-size: 24px;
+  text-align: center;
+}
+.container .microsoft a,
+.container .google a{
+  display: block;
+  height: 55px;
+  width: 100%;
+  font-size: 15px;
+  text-decoration: none;
+  padding-top: 4px;
+  padding-left: 20px;
+  line-height: 45px;
+  color: #fff;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.container .microsoft i,
+.container .google i{
+  padding-right: 12px;
+  font-size: 20px;
+}
+.container .google a{
+  background: linear-gradient(to right,  #e72f1f 0%, #ea4335 100%);
+  margin: 20px 0 15px 0;
+}
+.container .google a:hover{
+  background: linear-gradient(to left,  #d14c40 0%, #da564a 100%);
+  margin: 20px 0 15px 0;
+}
+.container .microsoft a{
+  background: linear-gradient( to right,  #3b5998 0%, #476bb8 100%);
+  margin: 20px 0 50px 0;
+}
+.container .microsoft a:hover{
+  background: linear-gradient( to left,  #3b5998 0%, #476bb8 100%);
+  margin: 20px 0 50px 0;
+}

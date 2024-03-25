@@ -1,9 +1,12 @@
 const express = require("express");
 const session = require("express-session");
 const cors = require("cors");
+
 const bodyParser = require("body-parser");
+
 const app = express();
 require("dotenv").config();
+
 const router = require("./routes/message.Routes");
 const { googleRouter } = require("./routes/googleauth.routes");
 const { outlookRouter } = require("./controllers/outlookController");

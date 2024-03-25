@@ -4,9 +4,10 @@ const {
   getDrafts,
   readMail,
   getMails,
-  sendMailViaQueue,
-  sendMultipleEmails,
+  
 } = require("../controllers/msg.Controller");
+const {sendMailViaQueue,
+  sendMultipleEmails,} = require("../controllers/queue.controller")
 const {sendMail, getUser}  = require("./googleauth.routes")
 
 router.use(express.json());
@@ -27,7 +28,7 @@ router.get("/allDrafts/:email", getDrafts);
 router.get("/read/:email/message/:message", readMail);
 router.get("/list/:email", getMails);
 
-// AutomatedRoutes
+
 router.post("/sendone/:id", sendMailViaQueue);
 router.post("/sendMultiple/:id", sendMultipleEmails);
 
