@@ -6,6 +6,10 @@ const nodemailer = require("nodemailer");
 const { OAuth2Client } = require("google-auth-library");
 const { connection } = require("../middlewares/redis.middleware");
 const googleRouter = express.Router();
+const OpenAI = require("openai");
+
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_SECRECT_KEY });
 
 // google oauth
 const oAuth2Client = new OAuth2Client({
