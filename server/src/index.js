@@ -29,8 +29,8 @@ app.use("/", googleRouter);
 app.use("/api/mail", router);
 app.use("/", outlookRouter);
 
-app.get("/get", async (req, res) => {
-  return res.json({ message: "Hello World" });
+app.get("/", async (req, res) => {
+   res.redirect("https://documenter.getpostman.com/view/31971527/2sA35D43FE")
 });
 
 app.listen(process.env.PORT, () => {
