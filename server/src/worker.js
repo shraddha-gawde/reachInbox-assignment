@@ -29,6 +29,7 @@ const sendMail = async (data) => {
     if (!token) {
       throw new Error("Token not found, Please login again to get token");
     }
+
     const transport = nodemailer.createTransport({
       host: process.env.SMTP_host,
       port: process.env.SMTP_port,
@@ -67,26 +68,29 @@ const sendMail = async (data) => {
 
     if (data.label === "Interested") {
       mailOptions.subject = `User is : ${data.label}`;
-      mailOptions.text = hardCodedReply
-        ? `Thank you for your email expressing interest in knowing more about our product/service. However, it is not clear from your previous mail whether you are interested or not. Could you please provide us with some more information? This will help us understand your requirements better and provide you with relevant information.`
-        : `${response.choices[0].message.content}`;
-      mailOptions.html = `<p>${mailOptions.text}</p><img src="" alt="reachinbox">`;
+      mailOptions.html = `
+        <div style="background-color: #f0f0f0; padding: 20px; border-radius: 10px; text-align: center;">
+          <p>${hardCodedReply ? `Thank you for your email expressing interest in knowing more about our product/service. However, it is not clear from your previous mail whether you are interested or not. Could you please provide us with some more information? This will help us understand your requirements better and provide you with relevant information.` : `${response.choices[0].message.content}`}</p>
+          
+        </div>`;
     } 
     
     else if (data.label === "Not Interested") {
       mailOptions.subject = `User is : ${data.label}`;
-      mailOptions.text = hardCodedReply
-        ? `Thank you for considering our offering. We respect your decision. Could you kindly share feedback on why our product/service did not align with your needs? Your insights are invaluable as we strive to improve our offerings. Looking forward to hearing from you.`
-        : `${response.choices[0].message.content}`;
-      mailOptions.html = `<p>${mailOptions.text}</p><img src="" alt="reachinbox">`;
+      mailOptions.html = `
+        <div style="background-color: #f0f0f0; padding: 20px; border-radius: 10px; text-align: center;">
+          <p>${hardCodedReply ? `Thank you for considering our offering. We respect your decision. Could you kindly share feedback on why our product/service did not align with your needs? Your insights are invaluable as we strive to improve our offerings. Looking forward to hearing from you.` : `${response.choices[0].message.content}`}</p>
+          
+        </div>`;
     } 
     
     else if (data.label === "More information") {
       mailOptions.subject = `User wants : ${data.label}`;
-      mailOptions.text = hardCodedReply
-        ? `Thank you for your interest in our product/service! We appreciate your enthusiasm. Could you please provide more details on your level of interest? Your previous email was positive, and we want to ensure we tailor our response accordingly. Any additional insights you can share would be greatly helpful. Looking forward to hearing more from you!`
-        : `${response.choices[0].message.content}`;
-      mailOptions.html = `<p>${mailOptions.text}</p><img src="" alt="reachinbox">`;
+      mailOptions.html = `
+        <div style="background-color: #f0f0f0; padding: 20px; border-radius: 10px; text-align: center;">
+          <p>${hardCodedReply ? `Thank you for your interest in our product/service! We appreciate your enthusiasm. Could you please provide more details on your level of interest? Your previous email was positive, and we want to ensure we tailor our response accordingly. Any additional insights you can share would be greatly helpful. Looking forward to hearing more from you!` : `${response.choices[0].message.content}`}</p>
+          
+        </div>`;
     }
 
     const result = await transport.sendMail(mailOptions);
@@ -95,6 +99,7 @@ const sendMail = async (data) => {
     console.log("Can't send email ", error.message);
   }
 };
+
 
 const parseAndSendMail = async (data1) => {
   try {

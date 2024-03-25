@@ -114,7 +114,6 @@
 //             },
 //         });
 
-        
 //         const messages = await client.api("/me/messages").top(num).get();
 //         res.send(messages);
 //     } catch (error) {
@@ -138,7 +137,7 @@
 const express = require("express");
 const app = express();
 const { Client } = require("@microsoft/microsoft-graph-client");
-require("dotenv").config()
+require("dotenv").config();
 
 const {
   PublicClientApplication,
@@ -147,18 +146,22 @@ const {
 
 const outlookRouter = express.Router();
 
-const clientId = process.env.AZURE_CLIENT_ID; 
-const clientSecret = process.env.AZURE_CLIENT_SECRET; 
-const tenantId = process.env.AZURE_TENANT_ID; 
+const clientId = process.env.AZURE_CLIENT_ID;
+const clientSecret = process.env.AZURE_CLIENT_SECRET;
+const tenantId = process.env.AZURE_TENANT_ID;
 const redirectUri = "http://localhost:4400/callback";
 const scopes = ["https://graph.microsoft.com/.default"];
 
 const msalConfig = {
   auth: {
-    clientId,
-    authority: `https://login.microsoftonline.com/${tenantId}`,
-    redirectUri,
+    clientId:"be8ccf6d-93c8-480d-b2bb-88e46c2318de",
+    authority: "https://login.microsoftonline.com/44f4d6b1-8db8-495e-bb3c-e62b42a19dd2",
+    redirectUri:"http://localhost:4400/callback"
   },
+  cache:{
+    cachelocation:"sessionStorage",
+    storeAuthStateInCookie: false
+  }
 };
 
 const pca = new PublicClientApplication(msalConfig);
@@ -173,7 +176,6 @@ const ccaConfig = {
 
 const cca = new ConfidentialClientApplication(ccaConfig);
 
-// Route for initiating sign-in flow
 outlookRouter.get("/signin", (req, res) => {
   const authCodeUrlParameters = {
     scopes,
@@ -200,16 +202,16 @@ outlookRouter.get("/callback", async (req, res) => {
       code,
       scopes,
       redirectUri,
-      clientSecret:clientSecret,
+      clientSecret: clientSecret,
     };
     console.log("Token Request:", tokenRequest);
     const response = await pca.acquireTokenByCode(tokenRequest);
     req.session.accessToken = response.accessToken;
-console.log(response.accessToken)
+    console.log(response.accessToken);
     res.redirect("/get-access-token");
   } catch (error) {
     console.error("Error exchanging authorization code:", error.message);
-    console.log(error)
+    console.log(error);
     res.status(500).send("Error exchanging authorization code.");
   }
 });
@@ -224,7 +226,7 @@ outlookRouter.get("/get-access-token", async (req, res) => {
 
     const response = await cca.acquireTokenByClientCredential(tokenRequest);
     req.session.clientAccessToken = response.accessToken;
-    console.log(response)
+    console.log(response);
     res.send("Access token acquired successfully!");
   } catch (error) {
     console.error("Error acquiring client access token:", error.message);
@@ -238,7 +240,8 @@ outlookRouter.use("/get-mails/:num", async (req, res) => {
   try {
     const userAccessToken = req.session.accessToken;
     const clientAccessToken = req.session.clientAccessToken;
-
+    console.log(userAccessToken)
+    console.log(clientAccessToken)
     if (!userAccessToken) {
       return res
         .status(401)
@@ -325,6 +328,6 @@ outlookRouter.use("/send-mail/:recipient", async (req, res) => {
   }
 });
 
-module.exports={
-    outlookRouter
-}
+module.exports = {
+  outlookRouter,
+};

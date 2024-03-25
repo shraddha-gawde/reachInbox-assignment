@@ -6,12 +6,9 @@ const {
 } = require("../middlewares/redis.middleware");
 const { createConfig } = require("../helpers/utils");
 const { google } = require("googleapis");
-const nodemailer = require("nodemailer");
-const constants = require("../constants");
 require("dotenv").config();
 const OpenAI = require("openai");
 const { Queue } = require("bullmq");
-const googleRouter = express.Router();
 const { OAuth2Client } = require("google-auth-library");
 
 const oAuth2Client = new OAuth2Client({
@@ -20,46 +17,6 @@ const oAuth2Client = new OAuth2Client({
   redirectUri: process.env.GOOGLE_REDIRECT_URI,
 });
 
-const scopes = [
-  "https://www.googleapis.com/auth/gmail.readonly",
-  "https://www.googleapis.com/auth/gmail.compose",
-  "https://www.googleapis.com/auth/gmail.modify",
-  
-];
-
-googleRouter.get("/auth/google", (req, res) => {
-  const authUrl = oAuth2Client.generateAuthUrl({
-    access_type: "offline",
-    scope: scopes,
-  });
-  res.redirect(authUrl);
-});
-
-let accessToken;
-googleRouter.get("/auth/google/callback", async (req, res) => {
-  const { code } = req.query;
-  console.log(code);
-  if (!code) {
-    return res.status(400).send("Authorization code missing.");
-  }
-
-  try {
-    const { tokens } = await oAuth2Client.getToken(code);
-
-    const { access_token, refresh_token, scope } = tokens;
-    console.log(tokens);
-    accessToken = access_token;
-    console.log(accessToken);
-    if (scope.includes(scopes.join(" "))) {
-      res.send("Restricted scopes test passed.");
-    } else {
-      res.send("Restricted scopes test failed: Scopes are not restricted.");
-    }
-  } catch (error) {
-    console.error("Error exchanging authorization code:", error.message);
-    res.status(500).send("Error exchanging authorization code.");
-  }
-});
 
 const sendMailQueue = new Queue("email-queue", { connection });
 
@@ -83,33 +40,6 @@ oAuth2Client.setCredentials({
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_SECRECT_KEY });
 
-const getUser = async (req, res) => {
-  try {
-    const url = `https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/profile`;
-
-    console.log(accessToken);
-    const token = accessToken;
-    connection.setex(req.params.email, 3600, token);
-    // const  token  =process.env.token;
-    console.log(`hiiii ${token} this is token`);
-
-    if (!token) {
-      return res.send("Token not found , Please login again to get token");
-    }
-
-    const config = createConfig(url, token);
-    console.log(config);
-
-    const response = await axios(config);
-    console.log(response);
-
-    res.json(response.data);
-  } catch (error) {
-    console.log("Can't get user email data ", error.message);
-    res.send(error.message);
-
-  }
-};
 
 const getDrafts = async (req, res) => {
   try {
@@ -133,6 +63,7 @@ const getDrafts = async (req, res) => {
   }
 };
 
+
 const readMail = async (req, res) => {
   try {
     const url = `https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/messages/${req.params.message}`;
@@ -153,10 +84,10 @@ const readMail = async (req, res) => {
   }
 };
 
+
 const getMails = async (req, res) => {
   try {
     const url = `https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/messages?maxResults=50`;
- 
     const token = await redisGetToken(req.params.email);
     if (!token) {
       return res.send("Token not found , Please login again to get token");
@@ -170,74 +101,8 @@ const getMails = async (req, res) => {
   }
 };
 
-const sendMail = async (data) => {
-  try {
-    const Token = accessToken;
-    if (!Token) {
-      throw new Error("Token not found, please login again to get token");
-    }
 
-    // Create a Nodemailer transporter
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_host,
-      port: process.env.SMTP_port,
-      auth: {
-        user: process.env.SMTP_mail,
-        pass: process.env.SMTP_pass,
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-    });
 
-    const mailOptions = {
-      from: data.from,
-      to: data.to,
-      subject: "",
-      text: "",
-      html: "",
-    };
-
-    // Define the email content based on the label
-    let emailContent = "";
-    if (data.label === "Interested") {
-      emailContent = `If the email mentions they are interested to know more, your reply should ask them if they are willing to hop on to a demo call by suggesting a time from your end.
-                      write a small text on above request in around 50 -70 words`;
-      mailOptions.subject = `User is : ${data.label}`;
-    } else if (data.label === "Not Interested") {
-      emailContent = `If the email mentions they are not interested, your reply should ask them for feedback on why they are not interested.
-                      write a small text on above request in around 50 -70 words`;
-      mailOptions.subject = `User is : ${data.label}`;
-    } else if (data.label === "More information") {
-      emailContent = `If the email mentions they are interested to know more, your reply should ask them if they can give some more information whether they are interested or not as it's not clear from their previous mail.
-                      write a small text on above request in around 70-80 words`;
-      mailOptions.subject = `User wants : ${data.label}`;
-    }
-
-    // Generate response using OpenAI's API
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo-0301",
-      max_tokens: 60,
-      temperature: 0.5,
-      messages: [
-        {
-          role: "user",
-          content: emailContent,
-        },
-      ],
-    });
-
-    // Set mail content based on the response from OpenAI
-    mailOptions.text = `${response.choices[0].message.content}`;
-    mailOptions.html = `<p>${response.choices[0].message.content}</p>`;
-
-    // Send email
-    const result = await transporter.sendMail(mailOptions);
-    return result;
-  } catch (error) {
-    throw new Error("Can't send email: " + error.message);
-  }
-};
 const parseAndSendMail = async (data1) => {
   try {
     console.log("body is :", data1);
@@ -318,6 +183,8 @@ const parseAndSendMail = async (data1) => {
   }
 };
 
+
+
 const sendMailViaQueue = async (req, res) => {
   try {
     const { id } = req.params;
@@ -328,6 +195,7 @@ const sendMailViaQueue = async (req, res) => {
   }
   res.send("Mail processing has been queued.");
 };
+
 
 const sendMultipleEmails = async (req, res) => {
   try {
@@ -360,13 +228,10 @@ const sendEmailToQueue = async ({ from, to, id }) => {
 };
 
 module.exports = {
-  getUser,
-  sendMail,
   getDrafts,
   readMail,
   getMails,
   parseAndSendMail,
   sendMailViaQueue,
   sendMultipleEmails,
-  googleRouter,
 };

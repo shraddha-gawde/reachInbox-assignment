@@ -4,8 +4,8 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const app = express();
 require("dotenv").config();
-const router = require("./routes/messageRoutes");
-const { googleRouter } = require("./controllers/msgController");
+const router = require("./routes/message.Routes");
+const { googleRouter } = require("./routes/googleauth.routes");
 const { outlookRouter } = require("./controllers/outlookController");
 
 app.use(bodyParser.json());
