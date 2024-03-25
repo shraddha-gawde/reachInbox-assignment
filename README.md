@@ -9,6 +9,9 @@ This is a server-based application built with Node.js and Express. It uses vario
 frontend : [Link](https://reach-inbox-assignment-kftow0xle.vercel.app/)
 <br>
 Backend : [Link](https://reachinbox-assignment-4rf9.onrender.com)
+<br>
+API documentation build with postman documentation - [Link](https://documenter.getpostman.com/view/31971527/2sA35D43FE)
+
 # Built with
 - Node.js
 - Express.js
@@ -17,6 +20,9 @@ Backend : [Link](https://reachinbox-assignment-4rf9.onrender.com)
 - Google APIs
 - Axios
 - bullMQ
+
+
+<br>
 
 ## API Endpoints
 
