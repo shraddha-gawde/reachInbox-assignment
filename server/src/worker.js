@@ -53,7 +53,7 @@ const sendMail = async (data) => {
     if (!hardCodedReply) {
       response = await openai.chat.completions.create({
         model: "gpt-3.5-turbo-0301",
-        max_tokens: 60,
+        max_tokens: 200,
         temperature: 0.5,
         messages: [
           {

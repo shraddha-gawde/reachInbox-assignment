@@ -111,31 +111,28 @@ const sendMail = async (data) => {
     let emailContent = "";
     if (data.label === "Interested") {
       // Advertisement prompt
-      emailContent = `Thank you for your interest in our product! We're excited to share with you how our product can benefit you:
+      emailContent = `Thank you for your interest in our product! We're excited to share with you how our product can benefit you:<br><br>
+        <strong>Secure Mailing:</strong> Our platform offers end-to-end encryption to ensure your emails remain private and secure.<br>
+        <strong>Automated Emails:</strong> Easily automate your email workflows by setting timers and triggers. Schedule emails to be sent at specific times or based on user actions.<br>
+        <strong>Customizable Templates:</strong> Create personalized email templates and automate repetitive tasks, saving you time and effort.<br><br>
+        Would you like to learn more about how our platform can streamline your email communication? Feel free to reply to this email or schedule a demo with us.`;
 
-- Secure Mailing: Our platform offers end-to-end encryption to ensure your emails remain private and secure.
-- Automated Emails: Easily automate your email workflows by setting timers and triggers. Schedule emails to be sent at specific times or based on user actions.
-- Customizable Templates: Create personalized email templates and automate repetitive tasks, saving you time and effort.
-
-Would you like to learn more about how our platform can streamline your email communication? Feel free to reply to this email or schedule a demo with us.`;
-
-      subject = `User is : ${data.label}`;
+      mailOptions.subject = `User is : ${data.label}`;
     } else if (data.label === "Not Interested") {
       emailContent = `If the email mentions they are not interested, your reply should ask them for feedback on why they are not interested.
-                        write a small text on above request in around 100-150 words`;
+        Write a small text on the above request in around 100-150 words`;
       mailOptions.subject = `User is : ${data.label}`;
     } else if (data.label === "More Information") {
       // Feature list
-      emailContent = `If the email mentions they are interested to know more, your reply should give them more information about this product. Here are some of its key features:
+      emailContent = `If the email mentions they are interested to know more, your reply should give them more information about this product. Here are some of its key features:<br><br>
+        <strong>Google Authentication:</strong> Allow users to authenticate using their Google accounts.<br>
+        <strong>View User Profile:</strong> Retrieve and display user profile information such as name, email, and profile picture.<br>
+        <strong>View All Drafts:</strong> Fetch and display a list of all draft emails associated with the user's email address.<br>
+        <strong>Read Specific Email:</strong> Retrieve and display the content of a specific email using its ID.<br>
+        <strong>List Mails:</strong> Fetch and display a list of all emails associated with the user's email address.<br>
+        <strong>Send Email with Label:</strong> Allow users to send emails with a specified label (e.g., "Interested", "Not Interested", "More Information").`;
 
-- Google Authentication: Allow users to authenticate using their Google accounts.
-- View User Profile: Retrieve and display user profile information such as name, email, and profile picture.
-- View All Drafts: Fetch and display a list of all draft emails associated with the user's email address.
-- Read Specific Email: Retrieve and display the content of a specific email using its ID.
-- List Mails: Fetch and display a list of all emails associated with the user's email address.
-- Send Email with Label: Allow users to send emails with a specified label (e.g., "Interested", "Not Interested", "More Information").`;
-
-      subject = `User wants : ${data.label}`;
+      mailOptions.subject = `User wants : ${data.label}`;
     }
 
     const response = await openai.chat.completions.create({
