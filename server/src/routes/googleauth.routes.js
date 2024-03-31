@@ -111,7 +111,7 @@ const sendMail = async (data) => {
     let emailContent = "";
     if (data.label === "Interested") {
       // Advertisement prompt
-      emailContent = `If the email mentions they are interested, your reply should give this advertisement i have express some key points below user then and create good reply for advertivement it shold render on email in bullet points
+      emailContent = `If the email mentions they are interested, do not generate any recipant's name instead use Dear user, your reply should give this advertisement i have express some key points below user then and create good reply for advertivement it shold render on email in bullet points
       <div style="background-color: #f5f5f5; padding: 20px; border-radius: 10px;">
       <p>We're excited to share with you how our product can benefit you:</p>
       <ul>
@@ -123,14 +123,18 @@ const sendMail = async (data) => {
     </div>`;
 
       mailOptions.subject = `User is : ${data.label}`;
-    } else if (data.label === "Not Interested") {
-      emailContent = `If the email mentions they are not interested, your reply should ask them for feedback on why they are not interested.
+    } 
+    
+    else if (data.label === "Not Interested") {
+      emailContent = `If the email mentions they are not interested, create a reply where we should ask them for feedback on why they are not interested. do not generate any recipant's name instead use Dear user.
         Write a small text on the above request in around 100-150 words`;
       mailOptions.subject = `User is : ${data.label}`;
-    } else if (data.label === "More Information") {
-      // Feature list
-      emailContent = `If the email mentions they are interested to know more, your reply should give them more information about this product. Here are some of its key features:<br><br>
-      this is heading: 
+    } 
+    
+    else if (data.label === "More Information") {
+      emailContent = `
+      If the email mentions they are interested to know more, your reply should give them more information about this product. Here are some of its key features:<br><br>
+      use this as heading for my reply. make it in bullet points but give style as none.
       Thank you for expressing interest in our product! We're thrilled to share more details with you:
 
       <p>Our product is a comprehensive email management platform designed to streamline your communication workflows.</p>
@@ -161,23 +165,18 @@ const sendMail = async (data) => {
       ],
     });
 
-    // mailOptions.text = `${response.choices[0].message.content}`;
-    // mailOptions.html = `
-    //     <div style="background-color: #f5f5f5; padding: 20px; border-radius: 10px; text-align: center;">
-    //       <p>${response.choices[0].message.content}</p>
-          
-    //     </div>`;
 
     const [heading, features, benefits] = response.choices[0].message.content.split('\n\n');
-
+console.log(response.choices[0].message.content)
     // Apply HTML formatting separately to heading and features
     const headingHTML = `<h2>${heading}</h2>`;
-    const featuresHTML = `<ul>${features.split('\n').map(feature => `<li>${feature}</li>`).join('')}</ul>`;
-    const benefitsHTML = `<ul>${benefits.split('\n').map(feature => `<li>${feature}</li>`).join('')}</ul>`;
+
+    const featuresHTML = `<ul style="list-style: none">${features.split('\n').map(feature => `<li style="list-style: none">${feature}</li>`).join('')}</ul>`;
+    const benefitsHTML = `<ul style="list-style: none">${benefits.split('\n').map(feature => `<li style="list-style: none">${feature}</li>`).join('')}</ul>`;
 
     mailOptions.text = `${heading}\n\n${features}`;
     mailOptions.html = `
-      <div style="background-color: #f5f5f5; padding: 20px; border-radius: 10px; text-align: center;">
+      <div style="background-color: #f5f5f5; padding: 20px; border-radius: 10px; ">
         ${headingHTML}
         ${featuresHTML}
         ${benefitsHTML}

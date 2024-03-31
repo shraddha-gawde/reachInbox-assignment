@@ -1,20 +1,23 @@
 const express = require('express');
-const app = express();
+// const app = express();
 const outlookRouter = express.Router();
 const {
-    handleAuthorization,
-    getMailsFromOutlook,
-    Signin,
-    getAccessTokenFromOutlook
+    // handleAuthorization,
+    // getMailsFromOutlook,
+    signin,
+    callback,
+    getAccessToken
+    // getAccessTokenFromOutlook
 } = require('../controllers/outlookController');
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+outlookRouter.use(express.json());
+outlookRouter.use(express.urlencoded({ extended: true }));
 
 // Outlook Routes
-outlookRouter.get('/signin', Signin);
-outlookRouter.get('/', handleAuthorization);
-outlookRouter.get('/get-access-token', getAccessTokenFromOutlook);
-outlookRouter.get('/get-mails/:num', getMailsFromOutlook);
+outlookRouter.get('/signin', signin);
+outlookRouter.get('/callback', callback);
+outlookRouter.get('/get-access-token', getAccessToken);
+// outlookRouter.get('/get-access-token', getAccessTokenFromOutlook);
+// outlookRouter.get('/get-mails/:num', getMailsFromOutlook);
 
-module.exports = {outlookRouter};
+module.exports = outlookRouter;

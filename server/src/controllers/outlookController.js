@@ -40,19 +40,19 @@ const ccaConfig = {
 
 const cca = new ConfidentialClientApplication(ccaConfig);
 
-outlookRouter.get("/signin", (req, res) => {
+const signin = (req, res)=>{
   const authCodeUrlParameters = {
     scopes,
     redirectUri,
-  };
+  }
 
   cca.getAuthCodeUrl(authCodeUrlParameters).then((response) => {
     res.redirect(response);
-  });
-});
+  })
+}
 
 // Callback route for handling authorization code
-outlookRouter.get("/callback", async (req, res) => {
+const callback = async(req, res)=>{
   const { code } = req.query;
 
   if (!code) {
@@ -79,11 +79,12 @@ outlookRouter.get("/callback", async (req, res) => {
     console.log(error);
     res.status(500).send("Error exchanging authorization code.");
   }
-});
+}
+
 
 // Route for acquiring client access token
 let clientAccessToken;
-outlookRouter.get("/get-access-token", async (req, res) => {
+const getAccessToken = async(req, res)=>{
   try {
     const tokenRequest = {
       scopes,
@@ -99,7 +100,9 @@ outlookRouter.get("/get-access-token", async (req, res) => {
     console.error("Error acquiring client access token:", error.message);
     res.status(500).send("Error acquiring client access token.");
   }
-});
+}
+
+
 
 outlookRouter.use("/get-mails/:num", async (req, res) => {
   const num = req.params.num;
@@ -196,5 +199,8 @@ outlookRouter.use("/send-mail/:recipient", async (req, res) => {
 });
 
 module.exports = {
-  outlookRouter,
+  // outlookRouter,x 
+  signin,
+  callback,
+  getAccessToken
 };

@@ -9,7 +9,7 @@ require("dotenv").config();
 
 const router = require("./routes/message.Routes");
 const { googleRouter } = require("./routes/googleauth.routes");
-const { outlookRouter } = require("./controllers/outlookController");
+const  outlookRouter  = require("./routes/outlook.Routes");
 
 app.use(bodyParser.json());
 app.use(cors());
