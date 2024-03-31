@@ -112,15 +112,14 @@ const sendMail = async (data) => {
     let emailContent = "";
     if (data.label === "Interested") {
       emailContent = `If the email mentions they are interested to know more, your reply should ask them if they are willing to hop on to a demo call by suggesting a time from your end.
-                        write a small text on above request in around 140-150 words`;
+                        write a small text on above request in around 100-150 words`;
       mailOptions.subject = `User is : ${data.label}`;
     } else if (data.label === "Not Interested") {
       emailContent = `If the email mentions they are not interested, your reply should ask them for feedback on why they are not interested.
-                        write a small text on above request in around 140-150 words`;
+                        write a small text on above request in around 100-150 words`;
       mailOptions.subject = `User is : ${data.label}`;
     } else if (data.label === "More information") {
-      emailContent = `If the email mentions they are interested to know more, your reply should ask them if they can give some more information whether they are interested or not as it's not clear from their previous mail.
-                        write a small text on above request in around 140-150 words`;
+      emailContent = `If the email mentions they are interested to know more, your reply should to give them more information above this product like how does it work, what are main featuredm explaib tgem in details in bullet points.`;
       mailOptions.subject = `User wants : ${data.label}`;
     }
 
