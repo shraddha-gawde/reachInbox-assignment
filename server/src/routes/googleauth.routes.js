@@ -111,21 +111,37 @@ const sendMail = async (data) => {
 
     let emailContent = "";
     if (data.label === "Interested") {
-      emailContent = `If the email mentions they are interested to know more, your reply should ask them if they are willing to hop on to a demo call by suggesting a time from your end.
-                        write a small text on above request in around 100-150 words`;
-      mailOptions.subject = `User is : ${data.label}`;
+      // Advertisement prompt
+      emailContent = `Thank you for your interest in our product! We're excited to share with you how our product can benefit you:
+
+- Secure Mailing: Our platform offers end-to-end encryption to ensure your emails remain private and secure.
+- Automated Emails: Easily automate your email workflows by setting timers and triggers. Schedule emails to be sent at specific times or based on user actions.
+- Customizable Templates: Create personalized email templates and automate repetitive tasks, saving you time and effort.
+
+Would you like to learn more about how our platform can streamline your email communication? Feel free to reply to this email or schedule a demo with us.`;
+
+      subject = `User is : ${data.label}`;
     } else if (data.label === "Not Interested") {
       emailContent = `If the email mentions they are not interested, your reply should ask them for feedback on why they are not interested.
                         write a small text on above request in around 100-150 words`;
       mailOptions.subject = `User is : ${data.label}`;
-    } else if (data.label === "More information") {
-      emailContent = `If the email mentions they are interested to know more, your reply should to give them more information above this product like how does it work, what are main featuredm explaib tgem in details in bullet points.`;
-      mailOptions.subject = `User wants : ${data.label}`;
+    } else if (data.label === "More Information") {
+      // Feature list
+      emailContent = `If the email mentions they are interested to know more, your reply should give them more information about this product. Here are some of its key features:
+
+- Google Authentication: Allow users to authenticate using their Google accounts.
+- View User Profile: Retrieve and display user profile information such as name, email, and profile picture.
+- View All Drafts: Fetch and display a list of all draft emails associated with the user's email address.
+- Read Specific Email: Retrieve and display the content of a specific email using its ID.
+- List Mails: Fetch and display a list of all emails associated with the user's email address.
+- Send Email with Label: Allow users to send emails with a specified label (e.g., "Interested", "Not Interested", "More Information").`;
+
+      subject = `User wants : ${data.label}`;
     }
 
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo-0301",
-      max_tokens: 60,
+      max_tokens: 200,
       temperature: 0.5,
       messages: [
         {
