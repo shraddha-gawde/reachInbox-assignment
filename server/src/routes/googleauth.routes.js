@@ -8,7 +8,6 @@ const { connection } = require("../middlewares/redis.middleware");
 const googleRouter = express.Router();
 const OpenAI = require("openai");
 
-
 const openai = new OpenAI({ apiKey: process.env.OPENAI_SECRECT_KEY });
 
 // google oauth
@@ -35,7 +34,7 @@ googleRouter.get("/auth/google", (req, res) => {
 let accessToken;
 googleRouter.get("/auth/google/callback", async (req, res) => {
   const { code } = req.query;
-  
+
   if (!code) {
     return res.status(400).send("Authorization code missing.");
   }
@@ -46,7 +45,7 @@ googleRouter.get("/auth/google/callback", async (req, res) => {
     const { access_token, refresh_token, scope } = tokens;
 
     accessToken = access_token;
-    
+
     if (scope.includes(scopes.join(" "))) {
       res.send("Restricted scopes test passed.");
     } else {
@@ -71,7 +70,7 @@ const getUser = async (req, res) => {
     }
 
     const config = createConfig(url, token);
-   
+
     const response = await axios(config);
 
     res.json(response.data);
@@ -81,7 +80,7 @@ const getUser = async (req, res) => {
   }
 };
 
-// 
+//
 const sendMail = async (data) => {
   try {
     const Token = accessToken;
@@ -168,5 +167,5 @@ Would you like to learn more about how our platform can streamline your email co
 module.exports = {
   googleRouter,
   sendMail,
-  getUser
+  getUser,
 };
