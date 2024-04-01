@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
     signinButton2.addEventListener('click', function() {
       
-      window.location.href = 'https://reachinbox-assignment-4rf9.onrender.com/signin';
+      window.location.href = 'https://reachinbox-assignment-4rf9.onrender.com/outlook/signin';
     });
   });
   
