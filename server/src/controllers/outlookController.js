@@ -40,6 +40,8 @@ const signin = (req, res) => {
     res.redirect(response);
   });
 };
+
+
 let accessToken;
 
 const callback = async (req, res) => {
@@ -64,7 +66,7 @@ const callback = async (req, res) => {
 
     accessToken = response.accessToken;
     console.log(accessToken);
-    res.send(accessToken);
+    res.status(200).send({msg:"user is authorized"});
   } catch (error) {
     console.error("Error exchanging authorization code:", error.message);
     console.log(error);
@@ -226,62 +228,6 @@ Thank you for expressing interest in our product! We're thrilled to share more d
   }
 };
 
-// outlookRouter.use("/send-mail/:recipient", async (req, res) => {
-//   const recipient = req.params.recipient;
-
-//   try {
-//     const userAccessToken = req.session.accessToken;
-//     const clientAccessToken = req.session.clientAccessToken;
-
-//     // Check if the user and client are authenticated
-//     if (!userAccessToken) {
-//       return res
-//         .status(401)
-//         .send("User not authenticated. Please sign in first.");
-//     }
-
-//     if (!clientAccessToken) {
-//       return res
-//         .status(401)
-//         .send(
-//           "Client not authenticated. Please acquire the client access token first."
-//         );
-//     }
-
-//     // Initialize the Microsoft Graph API client using the user access token
-//     const client = Client.init({
-//       authProvider: (done) => {
-//         done(null, userAccessToken);
-//       },
-//     });
-
-//     // Prepare the email data
-//     const sendMail = {
-//       message: {
-//         subject: "Wanna go out for lunch?",
-//         body: {
-//           contentType: "Text",
-//           content: "I know a sweet spot that just opened around us!",
-//         },
-//         toRecipients: [
-//           {
-//             emailAddress: {
-//               address: recipient,
-//             },
-//           },
-//         ],
-//       },
-//       saveToSentItems: false,
-//     };
-
-//     // Send the email using the Microsoft Graph API
-//     const response = await client.api("/me/sendMail").post(sendMail);
-//     res.send(response);
-//   } catch (error) {
-//     res.status(500).send(error);
-//     console.log("Error sending message:", error.message);
-//   }
-// });
 
 
 
