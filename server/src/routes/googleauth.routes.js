@@ -167,7 +167,7 @@ const sendMail = async (data) => {
 
 
     const [heading, features, benefits] = response.choices[0].message.content.split('\n\n');
-console.log(response.choices[0].message.content)
+
     const headingHTML = `<h2>${heading}</h2>`;
 
     const featuresHTML = `<ul style="list-style: none">${features.split('\n').map(feature => `<li style="list-style: none">${feature}</li>`).join('')}</ul>`;

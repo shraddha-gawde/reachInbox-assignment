@@ -1,9 +1,6 @@
 const axios = require("axios");
 const express = require("express");
-const {
-  connection,
-  redisGetToken,
-} = require("../middlewares/redis.middleware");
+const { connection, redisGetToken, } = require("../middlewares/redis.middleware");
 const { createConfig } = require("../helpers/utils");
 const { google } = require("googleapis");
 require("dotenv").config();
@@ -31,8 +28,7 @@ const getDrafts = async (req, res) => {
   
     const token = await redisGetToken(req.params.email);
     console.log(token);
-  
-    console.log(token);
+
     if (!token) {
       return res.send("Token not found , Please login again to get token");
     }
@@ -53,7 +49,7 @@ const readMail = async (req, res) => {
     const url = `https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/messages/${req.params.message}`;
    
     const token = await redisGetToken(req.params.email);
-    console.log(token);
+
     if (!token) {
       return res.send("Token not found , Please login again to get token");
     }
