@@ -88,8 +88,18 @@ For Google's OAuth2.0:
 ```
 For microsoft azur's OAuth2.0:
 
-- `https://reachinbox-assignment-4rf9.onrender.com/signin` - GET for micosoft azur authentication for outlook
-- `https://reachinbox-assignment-4rf9.onrender.com/get-access-token` - GET for micosoft azur getting access token
+- `https://reachinbox-assignment-4rf9.onrender.com/outlook/signin` - GET for micosoft azur authentication for outlook
+- `https://reachinbox-assignment-4rf9.onrender.com/outlook/callbak` - GET for micosoft azur getting access token
+- `https://reachinbox-assignment-4rf9.onrender.com/outlook/{email}/send-Mail` - post request for sending mail to another user using outlook
+```
+{
+    "from":"sendersmail@gmail.com",
+    "to":"recieversmail@gmail.com"
+}
+```
+- `https://reachinbox-assignment-4rf9.onrender.com/outlook/profile` - GET request to get pr0file data for particular user
+- `https://reachinbox-assignment-4rf9.onrender.com/outlook/all-Mails/{email}` - GET request for get ist of all mails of outllok user
+- `https://reachinbox-assignment-4rf9.onrender.com/outlook/{email}/read-Msg/{:message}` = GET request to read partivcular mail using messange id
 
 ## Sample .env sample:
 ```
