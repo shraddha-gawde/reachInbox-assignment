@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   session({
-    secret: "any_secret_key",
+    secret: "secret_key",
     resave: false,
     saveUninitialized: false,
   })
@@ -27,7 +27,7 @@ app.use(
 // MessageRoutes
 app.use("/", googleRouter);
 app.use("/api/mail", router);
-app.use("/", outlookRouter);
+app.use("/outlook", outlookRouter);
 
 app.get("/", async (req, res) => {
    res.redirect("https://documenter.getpostman.com/view/31971527/2sA35D43FE")

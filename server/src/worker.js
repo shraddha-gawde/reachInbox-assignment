@@ -68,8 +68,16 @@ const sendMail = async (data) => {
     if (data.label === "Interested") {
       mailOptions.subject = `User is : ${data.label}`;
       mailOptions.html = `
-        <div style="background-color: #f0f0f0; padding: 20px; border-radius: 10px; text-align: center;">
-          <p>${hardCodedReply ? `Thank you for your email expressing interest in knowing more about our product/service. However, it is not clear from your previous mail whether you are interested or not. Could you please provide us with some more information? This will help us understand your requirements better and provide you with relevant information.` : `${response.choices[0].message.content}`}</p>
+        <div style="background-color: #f0f0f0; padding: 20px; border-radius: 10px;">
+          <p>${hardCodedReply ? `<div style="background-color: #f5f5f5; padding: 20px; border-radius: 10px;">
+          <p>We're excited to share with you how our product can benefit you:</p>
+          <ul>
+            <li><strong>Secure Mailing:</strong> Our platform offers end-to-end encryption to ensure your emails remain private and secure.</li>
+            <li><strong>Automated Emails:</strong> Easily automate your email workflows by setting timers and triggers. Schedule emails to be sent at specific times or based on user actions.</li>
+            <li><strong>Customizable Templates:</strong> Create personalized email templates and automate repetitive tasks, saving you time and effort.</li>
+          </ul>
+          <p>Would you like to learn more about how our platform can streamline your email communication? Feel free to reply to this email.</p>
+        </div>` : `${response.choices[0].message.content}`}</p>
           
         </div>`;
     }
@@ -86,8 +94,21 @@ const sendMail = async (data) => {
     else if (data.label === "More information") {
       mailOptions.subject = `User wants : ${data.label}`;
       mailOptions.html = `
-        <div style="background-color: #f0f0f0; padding: 20px; border-radius: 10px; text-align: center;">
-          <p>${hardCodedReply ? `Thank you for your interest in our product/service! We appreciate your enthusiasm. Could you please provide more details on your level of interest? Your previous email was positive, and we want to ensure we tailor our response accordingly. Any additional insights you can share would be greatly helpful. Looking forward to hearing more from you!` : `${response.choices[0].message.content}`}</p>
+        <div style="background-color: #f0f0f0; padding: 20px; border-radius: 10px;">
+          <p>${hardCodedReply ? `Thank you for expressing interest in our product! We're thrilled to share more details with you:
+
+          <p>Our product is a comprehensive email management platform designed to streamline your communication workflows.</p>
+          here are some features and benefits we can provide for user
+    
+          <ul>
+          <li><strong>Google Authentication:</strong> Allow users to authenticate using their Google accounts.</li>
+          <li><strong>View User Profile:</strong> Retrieve and display user profile information such as name, email, and profile picture.</li>
+          <li><strong>View All Drafts:</strong> Fetch and display a list of all draft emails associated with the user's email address.</li>
+          <li><strong>Read Specific Email:</strong> Retrieve and display the content of a specific email using its ID.</li>
+          <li><strong>List Mails:</strong> Fetch and display a list of all emails associated with the user's email address.</li>
+          <li><strong>Send Email with Label:</strong> Allow users to send emails with a specified label (e.g., "Interested", "Not Interested", "More Information").</li>
+        </ul>
+            <strong>Send Email with Label:</strong> Allow users to send emails with a specified label (e.g., "Interested", "Not Interested", "More Information").` : `${response.choices[0].message.content}`}</p>
           
         </div>`;
     }
