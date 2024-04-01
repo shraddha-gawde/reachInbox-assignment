@@ -1,5 +1,5 @@
 const express = require('express');
-// const app = express();
+const app = express();
 const outlookRouter = express.Router();
 const {
     signin,
@@ -32,6 +32,6 @@ outlookRouter.post("/:email/send-Mail", async (req, res) => {
       res.status(500).json({ error: error.message });
     }
   });
-
+// outlookRouter.get('/get-mails/:num', getMailsFromOutlook);
 
 module.exports = outlookRouter;

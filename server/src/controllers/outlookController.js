@@ -4,10 +4,10 @@ const { createConfig } = require("../helpers/utils");
 const axios = require("axios");
 const { connection, redisGetToken, } = require("../middlewares/redis.middleware");
 const { ConfidentialClientApplication } = require("@azure/msal-node");
+
 const OpenAI = require("openai");
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_SECRECT_KEY });
-
 
 const clientId = process.env.AZURE_CLIENT_ID;
 const clientSecret = process.env.AZURE_CLIENT_SECRET;
@@ -25,7 +25,6 @@ const ccaConfig = {
 
 const cca = new ConfidentialClientApplication(ccaConfig);
 
-// outlook signin 
 const signin = (req, res) => {
   const authCodeUrlParameters = {
     scopes,
@@ -37,9 +36,8 @@ const signin = (req, res) => {
   });
 };
 
-
 let accessToken;
-// outlook callback
+
 const callback = async (req, res) => {
   const { code } = req.query;
 
@@ -70,8 +68,6 @@ const callback = async (req, res) => {
   }
 };
 
-
-// get user profile
 const getUser = async (req, res) => {
   try {
     const url = `https://graph.microsoft.com/v1.0/me`;
@@ -96,7 +92,6 @@ const getUser = async (req, res) => {
   }
 };
 
-// get all emails from authorized user
 const getMails = async (req, res) => {
   try {
     const url = `https://graph.microsoft.com/v1.0/me/messages?maxResults=50`;
@@ -116,7 +111,6 @@ const getMails = async (req, res) => {
   }
 };
 
-// read particular mail from outlook
 const readMail = async (req, res) => {
   try {
     const url = `https://graph.microsoft.com/v1.0/me/messages/${req.params.message}`;
@@ -134,8 +128,6 @@ const readMail = async (req, res) => {
   }
 };
 
-
-// send mail using outlook
 const sendMail = async (data, token) => {
   try {
     if (!token) {
