@@ -58,7 +58,7 @@ npm run server
 
 ## API Endpoints
 
-For Google's OAuth2.0:
+### For Google's OAuth2.0:
 - `https://reachinbox-assignment-4rf9.onrender.com/auth/google` - GET for google authentication
 - `https://reachinbox-assignment-4rf9.onrender.com/api/mail/userInfo/:email` - GET request to view user profile
 - `https://reachinbox-assignment-4rf9.onrender.com/api/mail/allDrafts/:email` - GET request to view all drafts mail.
@@ -86,20 +86,30 @@ For Google's OAuth2.0:
     "to":["demo@gmail.com","demo@gmail.com", "demo@gmail.com"]
 }
 ```
-For microsoft azur's OAuth2.0:
+![image](https://github.com/shraddha-gawde/reachInbox-assignment/assets/101090200/e0bbbdce-1ec4-46c4-8335-e049f7f5b5c7)
+
+### For microsoft azur's OAuth2.0:
 
 - `https://reachinbox-assignment-4rf9.onrender.com/outlook/signin` - GET for micosoft azur authentication for outlook
 - `https://reachinbox-assignment-4rf9.onrender.com/outlook/callbak` - GET for micosoft azur getting access token
+- `https://reachinbox-assignment-4rf9.onrender.com/outlook/profile` - GET request to get profile data for particular user
+- `https://reachinbox-assignment-4rf9.onrender.com/outlook/all-Mails/{email}` - GET request for get ist of all mails of outllok user
+- `https://reachinbox-assignment-4rf9.onrender.com/outlook/{email}/read-Msg/{:message}` = GET request to read partivcular mail using messange id
 - `https://reachinbox-assignment-4rf9.onrender.com/outlook/{email}/send-Mail` - post request for sending mail to another user using outlook
+```
+{
+    "from":"sendersmail@gmail.com",
+    "to":"recieversmail@gmail.com"
+     "label":"interested/not-interested/more-information"
+}
+```
+- `https://reachinbox-assignment-4rf9.onrender.com/outlook/sendone/:email/:id` - post request for sending mail to another user using outlook using `bullmq`
 ```
 {
     "from":"sendersmail@gmail.com",
     "to":"recieversmail@gmail.com"
 }
 ```
-- `https://reachinbox-assignment-4rf9.onrender.com/outlook/profile` - GET request to get pr0file data for particular user
-- `https://reachinbox-assignment-4rf9.onrender.com/outlook/all-Mails/{email}` - GET request for get ist of all mails of outllok user
-- `https://reachinbox-assignment-4rf9.onrender.com/outlook/{email}/read-Msg/{:message}` = GET request to read partivcular mail using messange id
 
 ## Sample .env sample:
 ```
@@ -115,8 +125,4 @@ redis_pass = ***
 AZURE_CLIENT_ID = ***
 AZURE_CLIENT_SECRET = *** 
 AZURE_TENANT_ID = ***
-SMTP_mail = ***
-SMTP_pass = ***
-SMTP_host = ***
-SMTP_port = ***
 ```
