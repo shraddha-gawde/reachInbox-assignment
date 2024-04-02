@@ -71,7 +71,7 @@ const createLabel =  async (req, res) => {
   try {
       const token = await redisGetToken(req.params.email);
       const label = req.body;
-      console.log(token);
+      console.log(`tookebdghdfhyfg:          ${token}`);
 
       const response = await axios.post(`https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/labels`, label, {
           headers: {

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { getDrafts, readMail, getMails, createLabel, getLabel } = require("../controllers/msg.Controller");
 const { sendMailViaQueue,sendMultipleEmails } = require("../controllers/queue.controller")
-const { connection, redisGetToken } = require("../middlewares/redis.middleware");
+const { redisGetToken } = require("../middlewares/redis.middleware");
 const { sendMail, getUser }  = require("./googleauth.routes")
 
 router.use(express.json());
@@ -25,7 +25,7 @@ router.get("/read/:email/message/:message", readMail);
 router.get("/list/:email", getMails);
 
 
-router.post("/sendone/:id", sendMailViaQueue);
+router.post("/sendone/:email/:id", sendMailViaQueue);
 router.post("/sendMultiple/:id", sendMultipleEmails);
 router.post("/createLabel/:email", createLabel )
 router.get("/getLabel/:email/:id", getLabel )
