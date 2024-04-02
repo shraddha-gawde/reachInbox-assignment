@@ -81,24 +81,12 @@ const getUser = async (req, res) => {
 };
 
 //
-const sendMail = async (data) => {
+const sendMail = async (data, token) => {
   try {
-    const Token = accessToken;
-    if (!Token) {
+    // const Token = accessToken;
+    if (!token) {
       throw new Error("Token not found, please login again to get token");
     }
-
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_host,
-      port: process.env.SMTP_port,
-      auth: {
-        user: process.env.SMTP_mail,
-        pass: process.env.SMTP_pass,
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-    });
 
     const mailOptions = {
       from: data.from,
@@ -107,7 +95,6 @@ const sendMail = async (data) => {
       text: "",
       html: "",
     };
-
     let emailContent = "";
     if (data.label === "Interested") {
       // Advertisement prompt
@@ -181,10 +168,63 @@ const sendMail = async (data) => {
         ${benefitsHTML}
       </div>`;
 
-    const result = await transporter.sendMail(mailOptions);
-    return result;
+      const emailData = [
+        'Content-type: text/html;charset=iso-8859-1',
+        'MIME-Version: 1.0',
+        `from: ${data.from}`,
+        `to: ${data.to}`,
+        `subject: ${mailOptions.subject}`,
+        `text: ${mailOptions.text}`,
+        `html: ${mailOptions.html}`,
+  ].join('\n');
+
+      // raw Buffer.from(emailData).toString(`base64`)
+      // console.log(emailData)
+  
+      const sendMessageResponse = await axios.post(`https://gmail.googleapis.com/gmail/v1/users/${data.from}/messages/send`,{raw:Buffer.from(emailData).toString(`base64`)}, {
+        headers: {
+          "Content-Type" : "application/json",
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+
+    // const result = await transporter.sendMail(mailOptions);
+    let labelId;
+    switch (data.label) {
+      case "Interested":
+        labelId = "Label_1";
+        break;
+      case "Not Interested":
+        labelId = "Label_2";
+        break;
+      case "More Information":
+        labelId = "Label_3";
+        break;
+      default:
+        // Handle other cases or assign a default label
+        break;
+    }
+
+    const labelUrl = `https://gmail.googleapis.com/gmail/v1/users/${data.from}/messages/${sendMessageResponse.data.id}/modify`;
+    const labelConfig = {
+      method: 'POST',
+      url: labelUrl,
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      data: {
+        addLabelIds: [labelId]
+      }
+    };
+    const labelResponse = await axios(labelConfig);
+    
+    console.log(sendMessageResponse.data.id)
+    return sendMessageResponse.data.id.result;
   } catch (error) {
+    console.log(error)
     throw new Error("Can't send email: " + error.message);
+    
   }
 };
 

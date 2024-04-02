@@ -22,6 +22,8 @@ oAuth2Client.setCredentials({
 const openai = new OpenAI({ apiKey: process.env.OPENAI_SECRECT_KEY });
 
 
+
+
 const getDrafts = async (req, res) => {
   try {
     const url = `https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/drafts`;
@@ -65,6 +67,49 @@ const readMail = async (req, res) => {
 };
 
 
+const createLabel =  async (req, res) => {
+  try {
+      const token = await redisGetToken(req.params.email);
+      const label = req.body;
+      console.log(token);
+
+      const response = await axios.post(`https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/labels`, label, {
+          headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+          }
+      });
+
+      res.status(200).json(response.data);
+  } catch (err) {
+      console.error(err);
+      res.status(400).json({ error: err.message });
+  }
+}
+const getLabel = async (req, res) => {
+  try {
+    const url = `https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/labels/${req.params.id}`;
+    const token = await redisGetToken(req.params.email);
+    
+    if (!token) {
+      return res.status(400).send("Token not found, please login again to get token");
+    }
+    const config = {
+      method: 'get',
+      url: url,
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    };
+    
+    const response = await axios(config);
+    res.json(response.data);
+  } catch (error) {
+    console.error("Error:", error.message);
+    res.status(500).send(error.message);
+  }
+}
+
 const getMails = async (req, res) => {
   try {
     const url = `https://gmail.googleapis.com/gmail/v1/users/${req.params.email}/messages?maxResults=50`;
@@ -80,7 +125,6 @@ const getMails = async (req, res) => {
     console.log("Can't get emails ", error.message);
   }
 };
-
 
 
 const parseAndSendMail = async (data1) => {
@@ -168,4 +212,6 @@ module.exports = {
   readMail,
   getMails,
   parseAndSendMail,
+  createLabel,
+  getLabel
 };
