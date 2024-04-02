@@ -1,14 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const {
-  getDrafts,
-  readMail,
-  getMails,
-  
-} = require("../controllers/msg.Controller");
-const {sendMailViaQueue,
-  sendMultipleEmails,} = require("../controllers/queue.controller")
-const {sendMail, getUser}  = require("./googleauth.routes")
+const { getDrafts, readMail, getMails } = require("../controllers/msg.Controller");
+const { sendMailViaQueue,sendMultipleEmails } = require("../controllers/queue.controller")
+const { sendMail, getUser }  = require("./googleauth.routes")
 
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));

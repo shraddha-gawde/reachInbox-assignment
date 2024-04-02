@@ -11,8 +11,8 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_SECRECT_KEY });
 
 const clientId = process.env.AZURE_CLIENT_ID;
 const clientSecret = process.env.AZURE_CLIENT_SECRET;
-// const redirectUri = "http://localhost:4400/outlook/callback";
-const redirectUri ="https://reachinbox-assignment-4rf9.onrender.com/outlook/callback";
+const redirectUri = "http://localhost:4400/outlook/callback";
+// const redirectUri ="https://reachinbox-assignment-4rf9.onrender.com/outlook/callback";
 const scopes = ["user.read", "Mail.Read", "Mail.Send"];
 
 const ccaConfig = {
