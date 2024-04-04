@@ -7,7 +7,7 @@ This is a server-based application built with Node.js and Express. It uses vario
 ![image](https://github.com/shraddha-gawde/reachInbox-assignment/assets/101090200/0237adc4-c817-4d79-9b09-fc0b27f34e6e)
 
 ## deployed links :
-frontend : [Link](https://reach-inbox-assignment-kftow0xle.vercel.app/)
+frontend : [Link](reach-inbox-assignment.vercel.app/)
 <br>
 Backend : [Link](https://reachinbox-assignment-4rf9.onrender.com)
 <br>
