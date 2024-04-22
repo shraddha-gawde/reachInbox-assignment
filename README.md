@@ -6,12 +6,15 @@ respond to the e-mails based on the context using AI. Use BullMQ as the tasks sc
 This is a server-based application built with Node.js and Express. It uses various packages such as  `openai` for AI functionalities, `googleapis` for Google APIs, and `axios` for HTTP requests and `bullMQ` to process queues.
 ![image](https://github.com/shraddha-gawde/reachInbox-assignment/assets/101090200/0237adc4-c817-4d79-9b09-fc0b27f34e6e)
 
+
 ## deployed links :
 frontend : [Link](https://reach-inbox-assignment.vercel.app/)
 <br>
 Backend : [Link](https://reachinbox-assignment-4rf9.onrender.com)
 <br>
 API documentation build with postman documentation - [Link](https://documenter.getpostman.com/view/31971527/2sA35D43FE)
+
+
 
 # technologies used:
 - Node.js
