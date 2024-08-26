@@ -13,6 +13,8 @@ frontend : [Link](https://reach-inbox-assignment.vercel.app/)
 Backend : [Link](https://reachinbox-assignment-4rf9.onrender.com)
 <br>
 API documentation build with postman documentation - [Link](https://documenter.getpostman.com/view/31971527/2sA35D43FE)
+<br>
+Video link for demo of this Application - [Link](https://www.loom.com/share/51a86498fb774c6ba1602c0a2625cebe?sid=bf5e9f0d-23f8-4d54-a89b-b0d3d3412c35)
 
 
 
